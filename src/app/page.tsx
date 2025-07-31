@@ -25,41 +25,47 @@ interface ColorPaletteData {
 }
 
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [file, setFile] = useState<File[] | null>(null);
+  const [fileName, setFileName] = useState<string[] | null>([]);
+  const [previewUrl, setPreviewUrl] = useState<string[] | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [colorData, setColorData] = useState<ColorPaletteData | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
+    const selectedFile = Array.from(e.target.files || [])
+    if (selectedFile.length > 0) {
       setFile(selectedFile);
-      setFileName(selectedFile.name);
+      setFileName(selectedFile.map((file) => file.name));
       setColorData(null); // Reset color data when new file is selected
 
-      if (selectedFile.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          setPreviewUrl(reader.result as string);
-        };
-        reader.readAsDataURL(selectedFile);
-      } else {
-        setPreviewUrl(null);
-      }
+      const previewUrl = selectedFile.map((file) => {
+        return URL.createObjectURL(file);
+      })
+
+      setPreviewUrl(previewUrl);
+
+      // if (selectedFile.type.startsWith("image/")) {
+      //   const reader = new FileReader();
+      //   reader.onload = () => {
+      //     setPreviewUrl(reader.result as string);
+      //   };
+      //   reader.readAsDataURL(selectedFile);
+      // } else {
+      //   setPreviewUrl(null);
+      // }
     }
   };
 
   const handleSubmit = async () => {
-    if (!file) return;
+    if (file && file.length === 0) return;
 
     setUploading(true);
     setMessage("");
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      file?.map((f) => formData.append('images', f));
 
       const res = await fetch("http://localhost:4000/api/colors", {
         method: "POST",
@@ -114,6 +120,7 @@ export default function Home() {
               </label>
               <input
                 id="file-upload"
+                multiple
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
@@ -123,27 +130,27 @@ export default function Home() {
 
             {fileName && (
               <p className="text-sm text-gray-700 text-center">
-                Selected file: <span className="font-medium">{fileName}</span>
+                Selected file: <span className="font-medium">{fileName}; </span>
               </p>
             )}
 
-            {previewUrl && (
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-h-48 rounded-md border border-gray-300 shadow-sm"
-              />
+            {previewUrl && previewUrl?.length > 0 && (
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {previewUrl.map((preview, idx) => (
+                  <img src={preview} alt={`preview`} key={idx} />
+                ))}
+              </div>
             )}
 
             <div className="flex gap-3">
               <button
                 disabled={!fileName}
                 onClick={handleSubmit}
-                className={`px-6 py-2 rounded-lg text-white font-semibold transition ${
-                  fileName
+                className={`px-6 py-2 rounded-lg text-white font-semibold transition ${fileName
                     ? "bg-green-600 hover:bg-green-700"
                     : "bg-gray-300 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 {uploading ? "Extracting Colors..." : "Extract Colors"}
               </button>
@@ -184,11 +191,10 @@ export default function Home() {
                     Luminance: {(colorData.dominantColor.luminance * 100).toFixed(1)}%
                   </p>
                   <p className="text-sm">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      colorData.dominantColor.isDark 
-                        ? "bg-gray-800 text-white" 
+                    <span className={`px-2 py-1 rounded text-xs ${colorData.dominantColor.isDark
+                        ? "bg-gray-800 text-white"
                         : "bg-gray-200 text-gray-800"
-                    }`}>
+                      }`}>
                       {colorData.dominantColor.isDark ? "Dark" : "Light"}
                     </span>
                   </p>
@@ -218,11 +224,10 @@ export default function Home() {
                         {color.percentage}% of image
                       </p>
                       <p className="text-xs">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          color.isDark 
-                            ? "bg-gray-800 text-white" 
+                        <span className={`px-2 py-1 rounded text-xs ${color.isDark
+                            ? "bg-gray-800 text-white"
                             : "bg-gray-200 text-gray-800"
-                        }`}>
+                          }`}>
                           {color.isDark ? "Dark" : "Light"}
                         </span>
                       </p>
