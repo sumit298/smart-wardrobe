@@ -30,7 +30,7 @@ export default function Home() {
   const [previewUrl, setPreviewUrl] = useState<string[] | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [colorData, setColorData] = useState<ColorPaletteData | null>(null);
+  const [colorData, setColorData] = useState<ColorPaletteData[] | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = Array.from(e.target.files || [])
@@ -74,7 +74,7 @@ export default function Home() {
       });
 
       if (res.ok) {
-        const data: ColorPaletteData = await res.json();
+        const data: ColorPaletteData[] = await res.json();
         console.log("Color Palette:", data);
         setColorData(data);
         setMessage("✅ Colors extracted successfully!");
@@ -172,31 +172,31 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Color Results Section dwefdsdf ds ds */}
-        {colorData && (
-          <div className="space-y-6"> 
+        {/* Color Results Section */}
+        {colorData && colorData.map((colorItem, idx) => (
+          <div key={idx} className="space-y-6">
             {/* Dominant Color */}
             <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Dominant Color sedfdsfdaadcc</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-4">Dominant Color</h2>
               <div className="flex items-center gap-4">
                 <div
                   className="w-20 h-20 rounded-lg border-2 border-gray-300 shadow-sm cursor-pointer hover:scale-105 transition-transform"
-                  style={{ backgroundColor: colorData?.dominantColor?.hex }}
-                  onClick={() => copyToClipboard(colorData?.dominantColor?.hex)}
+                  style={{ backgroundColor: colorItem?.dominantColor?.hex }}
+                  onClick={() => copyToClipboard(colorItem?.dominantColor?.hex)}
                   title="Click to copy hex code"
                 />
                 <div className="space-y-1">
-                  <p className="font-mono text-lg font-semibold">{colorData?.dominantColor?.hex}</p>
-                  <p className="text-sm text-gray-600">{colorData.dominantColor.rgb}</p>
+                  <p className="font-mono text-lg font-semibold">{colorItem?.dominantColor?.hex}</p>
+                  <p className="text-sm text-gray-600">{colorItem.dominantColor.rgb}</p>
                   <p className="text-sm text-gray-600">
-                    Luminance: {(colorData.dominantColor.luminance * 100).toFixed(1)}%
+                    Luminance: {(colorItem.dominantColor.luminance * 100).toFixed(1)}%
                   </p>
                   <p className="text-sm">
-                    <span className={`px-2 py-1 rounded text-xs ${colorData.dominantColor.isDark
+                    <span className={`px-2 py-1 rounded text-xs ${colorItem.dominantColor.isDark
                         ? "bg-gray-800 text-white"
                         : "bg-gray-200 text-gray-800"
                       }`}>
-                      {colorData.dominantColor.isDark ? "Dark" : "Light"}
+                      {colorItem.dominantColor.isDark ? "Dark" : "Light"}
                     </span>
                   </p>
                 </div>
@@ -207,7 +207,7 @@ export default function Home() {
             <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Color Palette</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {colorData.palette.map((color, index) => (
+                {colorItem.palette.map((color, index) => (
                   <div
                     key={index}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -242,7 +242,7 @@ export default function Home() {
             <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Color Strip</h2>
               <div className="flex rounded-lg overflow-hidden border-2 border-gray-300 shadow-sm">
-                {colorData.palette.map((color, index) => (
+                {colorItem.palette.map((color, index) => (
                   <div
                     key={index}
                     className="flex-1 h-16 cursor-pointer hover:opacity-80 transition-opacity"
@@ -262,21 +262,21 @@ export default function Home() {
               <h2 className="text-xl font-bold text-gray-800 mb-4">Image Information</h2>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-blue-600">{colorData.imageInfo.width}px</p>
+                  <p className="text-2xl font-bold text-blue-600">{colorItem.imageInfo.width}px</p>
                   <p className="text-sm text-gray-600">Width</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-blue-600">{colorData.imageInfo.height}px</p>
+                  <p className="text-2xl font-bold text-blue-600">{colorItem.imageInfo.height}px</p>
                   <p className="text-sm text-gray-600">Height</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-blue-600">{colorData.imageInfo.channels}</p>
+                  <p className="text-2xl font-bold text-blue-600">{colorItem.imageInfo.channels}</p>
                   <p className="text-sm text-gray-600">Channels</p>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        ))}
       </div>
     </main>
   );
