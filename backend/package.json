@@ -15,9 +15,11 @@
   "type": "commonjs",
   "devDependencies": {
     "@eslint/js": "^9.31.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/colorthief": "^2.6.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "eslint": "^9.31.0",
     "eslint-plugin-react": "^7.37.5",
@@ -27,12 +29,16 @@
     "typescript-eslint": "^8.36.0"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "colorthief": "^2.6.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "ioredis": "^5.8.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.3",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
+    "redis": "^5.10.0",
     "sharp": "^0.34.3"
   }
 }
